@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, ExternalLink, MapPin, Radio, Users, Zap } from "lucide-react";
 import {
   calamitySummary,
-  getShortfallPhp,
-  getTotalFundedPhp,
+  getFamilyRegistryShortfallPhp,
   getTotalNeededPhp,
   ledgerEntries,
   supplyCategories,
@@ -26,8 +25,32 @@ import { useDonation } from "../../context/DonationContext";
 
 const outflows = ledgerEntries.filter((e) => e.type === "outflow");
 
-function remainingItems() {
-  return supplyCategories
+export function HeroStats() {
+  const { extraFundedByFamily, supplyFundedDelta, totalDonatedPhp, supplyDirectFunded } = useDonation();
+
+  // Live supply categories: merge static base with session-funded deltas
+  const liveCategories = supplyCategories.map((c) => ({
+    ...c,
+    quantityFunded: Math.min(
+      c.quantityNeeded,
+      c.quantityFunded + (supplyFundedDelta[c.id] ?? 0),
+    ),
+  }));
+
+  // TO CONTRIBUTE = total unfunded family needs, minus direct supply credits
+  const shortfall = getFamilyRegistryShortfallPhp(extraFundedByFamily, supplyDirectFunded);
+
+  // Overall Needs bar — derived entirely from live supply data
+  const totalNeeded = getTotalNeededPhp();
+  const baseFunded  = liveCategories.reduce((s, c) => s + c.unitCostPhp * c.quantityFunded, 0);
+  const metSoFar    = Math.min(totalNeeded, baseFunded + calamitySummary.lguFundAllocatedPhp);
+  const fundedRatio = totalNeeded > 0 ? Math.min(1, metSoFar / totalNeeded) : 0;
+
+  const lguAllocated = calamitySummary.lguFundAllocatedPhp;
+  const lguDisbursed = calamitySummary.lguFundDisbursedPhp;
+
+  // Remaining items for tooltip — computed from live categories
+  const items = liveCategories
     .map((c) => ({
       name: c.name,
       remainingQty: Math.max(0, c.quantityNeeded - c.quantityFunded),
@@ -36,22 +59,6 @@ function remainingItems() {
     }))
     .filter((c) => c.remainingQty > 0)
     .sort((a, b) => b.remainingCost - a.remainingCost);
-}
-
-export function HeroStats() {
-  const totalNeeded = getTotalNeededPhp();
-  const baseFunded = getTotalFundedPhp();           // supply-level funded amounts
-  const baseShortfall = getShortfallPhp();           // totalNeeded - baseFunded - lguAllocated
-  const { totalDonatedPhp } = useDonation();
-
-  // Session donations reduce the shortfall and increase what's met.
-  const shortfall = Math.max(0, baseShortfall - totalDonatedPhp);
-  // "Met so far" = what's already funded in supplies + LGU allocation + session donations
-  const metSoFar = baseFunded + calamitySummary.lguFundAllocatedPhp + totalDonatedPhp;
-  const fundedRatio = Math.min(1, metSoFar / totalNeeded);
-  const lguAllocated = calamitySummary.lguFundAllocatedPhp;
-  const lguDisbursed = calamitySummary.lguFundDisbursedPhp;
-  const items = remainingItems();
 
   const [balances, setBalances] = useState<WalletBalance[] | null | "loading">("loading");
 
@@ -214,8 +221,8 @@ export function HeroStats() {
                   Overall Needs — met &amp; to meet
                 </span>
                 <span className="font-mono-num text-sm font-semibold text-paper-50">
-                  {formatPhp(metSoFar, { compact: true })} met of{" "}
-                  {formatPhp(totalNeeded, { compact: true })}
+                  {formatPhp(metSoFar, { compact: true })} covered of{" "}
+                  {formatPhp(totalNeeded, { compact: true })} needed
                 </span>
               </div>
               <ProgressBar percent={fundedRatio * 100} tone="signal" className="mt-3" />
@@ -224,17 +231,25 @@ export function HeroStats() {
         >
           <ul className="space-y-3 text-sm text-paper-200">
             <li className="flex justify-between">
-              <span>Total tangible need</span>
+              <span>Total family registry needs</span>
               <span className="font-mono-num font-semibold text-paper-50">{formatPhp(totalNeeded)}</span>
             </li>
             <li className="flex justify-between">
-              <span className="text-verified-400">Met so far</span>
-              <span className="font-mono-num font-semibold text-verified-400">
-                {formatPhp(metSoFar)} ({Math.round(fundedRatio * 100)}%)
-              </span>
+              <span className="text-verified-400">LGU fund allocated</span>
+              <span className="font-mono-num font-semibold text-verified-400">{formatPhp(lguAllocated)}</span>
             </li>
+            <li className="flex justify-between">
+              <span className="text-verified-400">Supplies funded</span>
+              <span className="font-mono-num font-semibold text-verified-400">{formatPhp(baseFunded)}</span>
+            </li>
+            {totalDonatedPhp > 0 && (
+              <li className="flex justify-between">
+                <span className="text-verified-400">Donor contributions (session)</span>
+                <span className="font-mono-num font-semibold text-verified-400">+{formatPhp(totalDonatedPhp)}</span>
+              </li>
+            )}
             <li className="flex justify-between border-t border-ink-800 pt-3">
-              <span className="text-signal-400">Still to meet</span>
+              <span className="text-signal-400">Still to meet (family needs)</span>
               <span className="font-mono-num font-semibold text-signal-400">{formatPhp(shortfall)}</span>
             </li>
           </ul>

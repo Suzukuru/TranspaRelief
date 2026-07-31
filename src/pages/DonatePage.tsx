@@ -53,7 +53,7 @@ export default function DonatePage() {
   );
 
   const { address, status, balances, connect } = useWallet();
-  const { addDonation } = useDonation();
+  const { addDonation, fundFamily, fundSupply } = useDonation();
 
   const [asset, setAsset] = useState<Asset>("XLM");
   const [phpAmount, setPhpAmount] = useState(() => {
@@ -116,7 +116,13 @@ export default function DonatePage() {
       setTxHash(result.hash);
       setSendState("done");
       setUsedContract(true);
-      addDonation(phpAmount);
+      if (family) {
+        fundFamily(family.id, phpAmount);
+      } else if (item) {
+        fundSupply(item.id, phpAmount);
+      } else {
+        addDonation(phpAmount);
+      }
       return;
     }
 
@@ -134,7 +140,13 @@ export default function DonatePage() {
     }
     setTxHash(result.hash);
     setSendState("done");
-    addDonation(phpAmount);
+    if (family) {
+      fundFamily(family.id, phpAmount);
+    } else if (item) {
+      fundSupply(item.id, phpAmount);
+    } else {
+      addDonation(phpAmount);
+    }
   }
 
   const heading = family
