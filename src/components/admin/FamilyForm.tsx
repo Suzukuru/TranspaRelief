@@ -2,6 +2,8 @@ import { useState, type FormEvent } from "react";
 import { Plus, Shuffle, Trash2, UserPlus } from "lucide-react";
 import { SUPPLY_CATALOGUE } from "../../data/mockData";
 import { formatPhp } from "../../lib/format";
+import { useDonation } from "../../context/DonationContext";
+import type { Family } from "../../types";
 
 interface DraftNeed {
   id: string;
@@ -63,6 +65,7 @@ function generateRandomNeeds(urgency: string): DraftNeed[] {
 }
 
 export function FamilyForm() {
+  const { addFamily } = useDonation();
   const [barangay,     setBarangay]     = useState(BARANGAYS[0]);
   const [householdSize, setHouseholdSize] = useState(4);
   const [urgency,      setUrgency]      = useState<"critical" | "high" | "moderate">("moderate");
@@ -98,9 +101,29 @@ export function FamilyForm() {
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const nextId = `FAM-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newFamily: Family = {
+      id: nextId,
+      alias: `Family #${nextId}`,
+      barangay,
+      householdSize,
+      urgency,
+      registeredOn: new Date().toISOString().slice(0, 10),
+      deliveryStatus: "pending",
+      amountFundedPhp: 0,
+      needs: needs
+        .filter((n) => n.supplyId && n.quantity > 0 && n.unitCostPhp > 0)
+        .map((n, i) => ({
+          id: `n${i + 1}`,
+          label: n.label,
+          supplyId: n.supplyId,
+          quantity: n.quantity,
+          unitCostPhp: n.unitCostPhp,
+        })),
+    };
+    addFamily(newFamily);
     setConfirmation(
-      `${nextId} registered in ${barangay} — ${needs.length} need${
-        needs.length !== 1 ? "s" : ""
+      `${nextId} registered in ${barangay} — ${newFamily.needs.length} need${
+        newFamily.needs.length !== 1 ? "s" : ""
       } totalling ${formatPhp(total)} added to the master inventory.`,
     );
     setNeeds([{ id: nextDraftId(), label: "", supplyId: "", quantity: 1, unitCostPhp: 0 }]);

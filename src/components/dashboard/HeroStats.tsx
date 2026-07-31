@@ -2,10 +2,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, ExternalLink, MapPin, Radio, Users, Zap } from "lucide-react";
 import {
   calamitySummary,
-  getFamilyRegistryShortfallPhp,
-  getTotalNeededPhp,
   ledgerEntries,
-  supplyCategories,
 } from "../../data/mockData";
 import { formatDate, formatNumber, formatPhp } from "../../lib/format";
 import {
@@ -26,25 +23,16 @@ import { useDonation } from "../../context/DonationContext";
 const outflows = ledgerEntries.filter((e) => e.type === "outflow");
 
 export function HeroStats() {
-  const { extraFundedByFamily, supplyFundedDelta, totalDonatedPhp, supplyDirectFunded } = useDonation();
+  const { liveSupplyCategories, familyShortfall, totalDonatedPhp } = useDonation();
 
-  // Live supply categories: merge static base with session-funded deltas
-  const liveCategories = supplyCategories.map((c) => ({
-    ...c,
-    quantityFunded: Math.min(
-      c.quantityNeeded,
-      c.quantityFunded + (supplyFundedDelta[c.id] ?? 0),
-    ),
-  }));
+  // All numbers come from the reactive context — no static imports needed
+  const liveCategories = liveSupplyCategories;
+  const shortfall      = familyShortfall;
 
-  // TO CONTRIBUTE = total unfunded family needs, minus direct supply credits
-  const shortfall = getFamilyRegistryShortfallPhp(extraFundedByFamily, supplyDirectFunded);
-
-  // Overall Needs bar — derived entirely from live supply data
-  const totalNeeded = getTotalNeededPhp();
-  const baseFunded  = liveCategories.reduce((s, c) => s + c.unitCostPhp * c.quantityFunded, 0);
-  const metSoFar    = Math.min(totalNeeded, baseFunded + calamitySummary.lguFundAllocatedPhp);
-  const fundedRatio = totalNeeded > 0 ? Math.min(1, metSoFar / totalNeeded) : 0;
+  const totalNeeded  = liveCategories.reduce((s, c) => s + c.unitCostPhp * c.quantityNeeded, 0);
+  const baseFunded   = liveCategories.reduce((s, c) => s + c.unitCostPhp * c.quantityFunded, 0);
+  const metSoFar     = Math.min(totalNeeded, baseFunded + calamitySummary.lguFundAllocatedPhp);
+  const fundedRatio  = totalNeeded > 0 ? Math.min(1, metSoFar / totalNeeded) : 0;
 
   const lguAllocated = calamitySummary.lguFundAllocatedPhp;
   const lguDisbursed = calamitySummary.lguFundDisbursedPhp;

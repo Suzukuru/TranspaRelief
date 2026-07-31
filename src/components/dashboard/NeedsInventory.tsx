@@ -12,7 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { supplyCategories, assetRates } from "../../data/mockData";
+import { assetRates } from "../../data/mockData";
 import { formatAsset, formatNumber, formatPhp, phpToAsset } from "../../lib/format";
 import { ProgressBar } from "../ui/ProgressBar";
 import { LedgerPanel } from "./LedgerPanel";
@@ -33,16 +33,10 @@ type DisplayAsset = "PHP" | "XLM" | "USDC" | "PHPC";
 
 export function NeedsInventory() {
   const [displayAsset, setDisplayAsset] = useState<DisplayAsset>("PHP");
-  const { supplyFundedDelta } = useDonation();
+  const { liveSupplyCategories } = useDonation();
 
-  // Merge static supply data with live session-funded deltas
-  const liveCategories = supplyCategories.map((c) => ({
-    ...c,
-    quantityFunded: Math.min(
-      c.quantityNeeded,
-      c.quantityFunded + (supplyFundedDelta[c.id] ?? 0),
-    ),
-  }));
+  // liveSupplyCategories already has session donations baked in via context
+  const liveCategories = liveSupplyCategories;
 
   function renderCost(php: number) {
     if (displayAsset === "PHP") return formatPhp(php);

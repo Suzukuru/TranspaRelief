@@ -6,6 +6,7 @@ import { formatPhp } from "../../lib/format";
 import { Badge } from "../ui/Badge";
 import { StampBadge } from "../ui/StampBadge";
 import { ProgressBar } from "../ui/ProgressBar";
+import { useDonation } from "../../context/DonationContext";
 
 const URGENCY_TONE = {
   critical: "alert",
@@ -20,8 +21,10 @@ const DELIVERY_STAMP = {
 } as const;
 
 export function FamilyCard({ family }: { family: Family }) {
-  const totalCost = getFamilyTotalCostPhp(family);
-  const pct = totalCost > 0 ? (family.amountFundedPhp / totalCost) * 100 : 0;
+  const { extraFundedByFamily } = useDonation();
+  const totalCost  = getFamilyTotalCostPhp(family);
+  const totalFunded = Math.min(totalCost, family.amountFundedPhp + (extraFundedByFamily[family.id] ?? 0));
+  const pct = totalCost > 0 ? (totalFunded / totalCost) * 100 : 0;
   const stamp = DELIVERY_STAMP[family.deliveryStatus];
 
   return (
@@ -57,7 +60,7 @@ export function FamilyCard({ family }: { family: Family }) {
 
       <div className="mt-4">
         <div className="flex justify-between text-[11px] text-khaki-600">
-          <span>{formatPhp(family.amountFundedPhp, { compact: true })} funded</span>
+          <span>{formatPhp(totalFunded, { compact: true })} funded</span>
           <span>{formatPhp(totalCost, { compact: true })} total</span>
         </div>
         <ProgressBar percent={pct} tone="signal" size="sm" className="mt-1.5" />

@@ -22,45 +22,50 @@ export const calamitySummary: CalamitySummary = {
 };
 
 export const assetRates: AssetRate[] = [
-  { asset: "XLM",  phpRate: 22.4  },
+  { asset: "XLM", phpRate: 22.4 },
   { asset: "USDC", phpRate: 58.15 },
-  { asset: "PHPC", phpRate: 1     },
+  { asset: "PHPC", phpRate: 1 },
 ];
 
 // ---------------------------------------------------------------------------
-// Supply catalogue — unit costs only; quantities derived from family registry
+// Supply catalogue — unit costs and icons only; quantities derived from families
 // ---------------------------------------------------------------------------
 export const SUPPLY_CATALOGUE = [
-  { id: "rice",         name: "Rice (50 kg sack)",               unit: "sack",             icon: "Wheat",        unitCostPhp: 2_650 },
-  { id: "food-packs",   name: "Emergency Food Packs",            unit: "pack",             icon: "Package",      unitCostPhp: 750   },
-  { id: "roofing",      name: "CGI Roofing Sheets",              unit: "sheet",            icon: "Home",         unitCostPhp: 480   },
-  { id: "water",        name: "Potable Water (5-gal)",           unit: "gallon container", icon: "Droplets",     unitCostPhp: 120   },
-  { id: "hygiene",      name: "Hygiene Kits",                    unit: "kit",              icon: "ShowerHead",   unitCostPhp: 350   },
-  { id: "tarps",        name: "Tarpaulin Shelter Kits",          unit: "tarpaulin",        icon: "Tent",         unitCostPhp: 890   },
-  { id: "solar",        name: "Solar Lanterns",                  unit: "unit",             icon: "Sun",          unitCostPhp: 640   },
-  { id: "purification", name: "Water Purification Tablets (×50)", unit: "bottle",          icon: "FlaskConical", unitCostPhp: 95    },
+  { id: "rice",         name: "Rice (50kg sack)",              unit: "sack",             icon: "Wheat",        unitCostPhp: 2_650 },
+  { id: "food-packs",   name: "Emergency Food Packs",          unit: "pack",             icon: "Package",      unitCostPhp: 750   },
+  { id: "roofing",      name: "CGI Roofing Sheets",            unit: "sheet",            icon: "Home",         unitCostPhp: 480   },
+  { id: "water",        name: "Potable Water (5-gal)",         unit: "gallon container", icon: "Droplets",     unitCostPhp: 120   },
+  { id: "hygiene",      name: "Hygiene Kits",                  unit: "kit",              icon: "ShowerHead",   unitCostPhp: 350   },
+  { id: "tarps",        name: "Tarpaulin Shelter Kits",        unit: "tarpaulin",        icon: "Tent",         unitCostPhp: 890   },
+  { id: "solar",        name: "Solar Lanterns",                unit: "unit",             icon: "Sun",          unitCostPhp: 640   },
+  { id: "purification", name: "Water Purification Tablets (x50)", unit: "bottle",       icon: "FlaskConical", unitCostPhp: 95    },
 ] as const;
 
 export type SupplyId = typeof SUPPLY_CATALOGUE[number]["id"];
 
 // ---------------------------------------------------------------------------
-// Family registry — 30 families
-// Rules:
-//   delivered   → amountFundedPhp = full cost (100 %)
-//   in_transit  → amountFundedPhp = 40–60 % of total cost (rounded to nearest 50)
-//   pending     → amountFundedPhp = 0
+// Family registry — 30 families; amountFundedPhp = partially funded already
 // ---------------------------------------------------------------------------
 export const families: Family[] = [
-  // ── CRITICAL ────────────────────────────────────────────────────────────
   {
     id: "FAM-0422", alias: "Family #FAM-0422", barangay: "Barangay Look",
     householdSize: 5, urgency: "critical", registeredOn: "2026-07-15",
-    deliveryStatus: "pending", amountFundedPhp: 0,
+    deliveryStatus: "in_transit", amountFundedPhp: 2_400,
     needs: [
-      { id: "n1", label: "Emergency Food Packs",    supplyId: "food-packs", quantity: 4,  unitCostPhp: 750   },
-      { id: "n2", label: "CGI Roofing Sheets",      supplyId: "roofing",    quantity: 14, unitCostPhp: 480   },
-      { id: "n3", label: "Potable Water (5-gal)",   supplyId: "water",      quantity: 8,  unitCostPhp: 120   },
-      { id: "n4", label: "Tarpaulin Shelter Kits",  supplyId: "tarps",      quantity: 2,  unitCostPhp: 890   },
+      { id: "n1", label: "Emergency Food Packs", supplyId: "food-packs", quantity: 3, unitCostPhp: 750 },
+      { id: "n2", label: "CGI Roofing Sheets",   supplyId: "roofing",    quantity: 12, unitCostPhp: 480 },
+      { id: "n3", label: "Potable Water (5-gal)", supplyId: "water",     quantity: 6,  unitCostPhp: 120 },
+      { id: "n4", label: "Tarpaulin Shelter Kits", supplyId: "tarps",    quantity: 2,  unitCostPhp: 890 },
+    ],
+  },
+  {
+    id: "FAM-0389", alias: "Family #FAM-0389", barangay: "Barangay Tubod",
+    householdSize: 3, urgency: "high", registeredOn: "2026-07-15",
+    deliveryStatus: "pending", amountFundedPhp: 1_050,
+    needs: [
+      { id: "n1", label: "Rice (50kg sack)",   supplyId: "rice",    quantity: 2, unitCostPhp: 2_650 },
+      { id: "n2", label: "Hygiene Kits",       supplyId: "hygiene", quantity: 3, unitCostPhp: 350 },
+      { id: "n3", label: "Solar Lanterns",     supplyId: "solar",   quantity: 1, unitCostPhp: 640 },
     ],
   },
   {
@@ -68,10 +73,38 @@ export const families: Family[] = [
     householdSize: 7, urgency: "critical", registeredOn: "2026-07-16",
     deliveryStatus: "pending", amountFundedPhp: 0,
     needs: [
-      { id: "n1", label: "Tarpaulin Shelter Kits",              supplyId: "tarps",        quantity: 3,  unitCostPhp: 890 },
-      { id: "n2", label: "Emergency Food Packs",                supplyId: "food-packs",   quantity: 5,  unitCostPhp: 750 },
-      { id: "n3", label: "Water Purification Tablets (×50)",    supplyId: "purification", quantity: 6,  unitCostPhp: 95  },
-      { id: "n4", label: "CGI Roofing Sheets",                  supplyId: "roofing",      quantity: 12, unitCostPhp: 480 },
+      { id: "n1", label: "Tarpaulin Shelter Kits",            supplyId: "tarps",        quantity: 3,  unitCostPhp: 890 },
+      { id: "n2", label: "Emergency Food Packs",              supplyId: "food-packs",   quantity: 5,  unitCostPhp: 750 },
+      { id: "n3", label: "Water Purification Tablets (x50)", supplyId: "purification", quantity: 4,  unitCostPhp: 95  },
+      { id: "n4", label: "CGI Roofing Sheets",                supplyId: "roofing",      quantity: 10, unitCostPhp: 480 },
+    ],
+  },
+  {
+    id: "FAM-0287", alias: "Family #FAM-0287", barangay: "Barangay Sto. Niño",
+    householdSize: 4, urgency: "moderate", registeredOn: "2026-07-14",
+    deliveryStatus: "delivered", amountFundedPhp: 3_010,
+    needs: [
+      { id: "n1", label: "Rice (50kg sack)",    supplyId: "rice",  quantity: 1, unitCostPhp: 2_650 },
+      { id: "n2", label: "Potable Water (5-gal)", supplyId: "water", quantity: 3, unitCostPhp: 120 },
+    ],
+  },
+  {
+    id: "FAM-0466", alias: "Family #FAM-0466", barangay: "Barangay Bagong Sikat",
+    householdSize: 6, urgency: "high", registeredOn: "2026-07-16",
+    deliveryStatus: "pending", amountFundedPhp: 700,
+    needs: [
+      { id: "n1", label: "CGI Roofing Sheets", supplyId: "roofing",  quantity: 14, unitCostPhp: 480 },
+      { id: "n2", label: "Hygiene Kits",       supplyId: "hygiene",  quantity: 2,  unitCostPhp: 350 },
+      { id: "n3", label: "Emergency Food Packs", supplyId: "food-packs", quantity: 4, unitCostPhp: 750 },
+    ],
+  },
+  {
+    id: "FAM-0341", alias: "Family #FAM-0341", barangay: "Barangay Look",
+    householdSize: 2, urgency: "moderate", registeredOn: "2026-07-13",
+    deliveryStatus: "delivered", amountFundedPhp: 1_390,
+    needs: [
+      { id: "n1", label: "Emergency Food Packs", supplyId: "food-packs", quantity: 1, unitCostPhp: 750 },
+      { id: "n2", label: "Solar Lanterns",       supplyId: "solar",      quantity: 1, unitCostPhp: 640 },
     ],
   },
   {
@@ -79,10 +112,20 @@ export const families: Family[] = [
     householdSize: 8, urgency: "critical", registeredOn: "2026-07-17",
     deliveryStatus: "pending", amountFundedPhp: 0,
     needs: [
-      { id: "n1", label: "Rice (50 kg sack)",        supplyId: "rice",       quantity: 3, unitCostPhp: 2_650 },
-      { id: "n2", label: "Tarpaulin Shelter Kits",   supplyId: "tarps",      quantity: 2, unitCostPhp: 890   },
-      { id: "n3", label: "Potable Water (5-gal)",    supplyId: "water",      quantity: 8, unitCostPhp: 120   },
-      { id: "n4", label: "Hygiene Kits",             supplyId: "hygiene",    quantity: 4, unitCostPhp: 350   },
+      { id: "n1", label: "Rice (50kg sack)",       supplyId: "rice",   quantity: 3,  unitCostPhp: 2_650 },
+      { id: "n2", label: "Tarpaulin Shelter Kits", supplyId: "tarps",  quantity: 2,  unitCostPhp: 890 },
+      { id: "n3", label: "Potable Water (5-gal)",  supplyId: "water",  quantity: 8,  unitCostPhp: 120 },
+      { id: "n4", label: "Hygiene Kits",           supplyId: "hygiene", quantity: 4, unitCostPhp: 350 },
+    ],
+  },
+  {
+    id: "FAM-0155", alias: "Family #FAM-0155", barangay: "Barangay Riverside",
+    householdSize: 5, urgency: "high", registeredOn: "2026-07-15",
+    deliveryStatus: "in_transit", amountFundedPhp: 4_290,
+    needs: [
+      { id: "n1", label: "CGI Roofing Sheets",   supplyId: "roofing",    quantity: 8, unitCostPhp: 480 },
+      { id: "n2", label: "Emergency Food Packs", supplyId: "food-packs", quantity: 2, unitCostPhp: 750 },
+      { id: "n3", label: "Hygiene Kits",         supplyId: "hygiene",    quantity: 1, unitCostPhp: 350 },
     ],
   },
   {
@@ -90,10 +133,29 @@ export const families: Family[] = [
     householdSize: 6, urgency: "critical", registeredOn: "2026-07-17",
     deliveryStatus: "pending", amountFundedPhp: 0,
     needs: [
-      { id: "n1", label: "Rice (50 kg sack)",                    supplyId: "rice",         quantity: 2, unitCostPhp: 2_650 },
-      { id: "n2", label: "Tarpaulin Shelter Kits",               supplyId: "tarps",        quantity: 3, unitCostPhp: 890   },
-      { id: "n3", label: "Emergency Food Packs",                 supplyId: "food-packs",   quantity: 6, unitCostPhp: 750   },
-      { id: "n4", label: "Water Purification Tablets (×50)",     supplyId: "purification", quantity: 6, unitCostPhp: 95    },
+      { id: "n1", label: "Rice (50kg sack)",                 supplyId: "rice",         quantity: 2,  unitCostPhp: 2_650 },
+      { id: "n2", label: "Tarpaulin Shelter Kits",           supplyId: "tarps",        quantity: 3,  unitCostPhp: 890 },
+      { id: "n3", label: "Emergency Food Packs",             supplyId: "food-packs",   quantity: 6,  unitCostPhp: 750 },
+      { id: "n4", label: "Water Purification Tablets (x50)", supplyId: "purification", quantity: 6,  unitCostPhp: 95  },
+    ],
+  },
+  {
+    id: "FAM-0711", alias: "Family #FAM-0711", barangay: "Barangay Pook",
+    householdSize: 4, urgency: "high", registeredOn: "2026-07-18",
+    deliveryStatus: "pending", amountFundedPhp: 500,
+    needs: [
+      { id: "n1", label: "Hygiene Kits",         supplyId: "hygiene",    quantity: 4, unitCostPhp: 350 },
+      { id: "n2", label: "Emergency Food Packs", supplyId: "food-packs", quantity: 3, unitCostPhp: 750 },
+      { id: "n3", label: "Solar Lanterns",       supplyId: "solar",      quantity: 2, unitCostPhp: 640 },
+    ],
+  },
+  {
+    id: "FAM-0802", alias: "Family #FAM-0802", barangay: "Barangay Sta. Cruz",
+    householdSize: 3, urgency: "moderate", registeredOn: "2026-07-14",
+    deliveryStatus: "delivered", amountFundedPhp: 2_100,
+    needs: [
+      { id: "n1", label: "Rice (50kg sack)",   supplyId: "rice",  quantity: 1, unitCostPhp: 2_650 },
+      { id: "n2", label: "Hygiene Kits",       supplyId: "hygiene", quantity: 2, unitCostPhp: 350 },
     ],
   },
   {
@@ -101,11 +163,21 @@ export const families: Family[] = [
     householdSize: 9, urgency: "critical", registeredOn: "2026-07-18",
     deliveryStatus: "pending", amountFundedPhp: 0,
     needs: [
-      { id: "n1", label: "CGI Roofing Sheets",                   supplyId: "roofing",      quantity: 18, unitCostPhp: 480   },
-      { id: "n2", label: "Rice (50 kg sack)",                    supplyId: "rice",         quantity: 3,  unitCostPhp: 2_650 },
-      { id: "n3", label: "Emergency Food Packs",                 supplyId: "food-packs",   quantity: 8,  unitCostPhp: 750   },
-      { id: "n4", label: "Tarpaulin Shelter Kits",               supplyId: "tarps",        quantity: 2,  unitCostPhp: 890   },
-      { id: "n5", label: "Water Purification Tablets (×50)",     supplyId: "purification", quantity: 10, unitCostPhp: 95    },
+      { id: "n1", label: "CGI Roofing Sheets",               supplyId: "roofing",      quantity: 18, unitCostPhp: 480 },
+      { id: "n2", label: "Rice (50kg sack)",                 supplyId: "rice",         quantity: 3,  unitCostPhp: 2_650 },
+      { id: "n3", label: "Emergency Food Packs",             supplyId: "food-packs",   quantity: 8,  unitCostPhp: 750 },
+      { id: "n4", label: "Tarpaulin Shelter Kits",           supplyId: "tarps",        quantity: 2,  unitCostPhp: 890 },
+      { id: "n5", label: "Water Purification Tablets (x50)", supplyId: "purification", quantity: 10, unitCostPhp: 95  },
+    ],
+  },
+  {
+    id: "FAM-0915", alias: "Family #FAM-0915", barangay: "Barangay Look",
+    householdSize: 5, urgency: "high", registeredOn: "2026-07-19",
+    deliveryStatus: "pending", amountFundedPhp: 1_200,
+    needs: [
+      { id: "n1", label: "Potable Water (5-gal)",  supplyId: "water",      quantity: 10, unitCostPhp: 120 },
+      { id: "n2", label: "Emergency Food Packs",   supplyId: "food-packs", quantity: 4,  unitCostPhp: 750 },
+      { id: "n3", label: "Solar Lanterns",         supplyId: "solar",      quantity: 2,  unitCostPhp: 640 },
     ],
   },
   {
@@ -113,10 +185,29 @@ export const families: Family[] = [
     householdSize: 7, urgency: "critical", registeredOn: "2026-07-19",
     deliveryStatus: "pending", amountFundedPhp: 0,
     needs: [
-      { id: "n1", label: "CGI Roofing Sheets",      supplyId: "roofing",    quantity: 20, unitCostPhp: 480   },
-      { id: "n2", label: "Rice (50 kg sack)",        supplyId: "rice",       quantity: 4,  unitCostPhp: 2_650 },
-      { id: "n3", label: "Tarpaulin Shelter Kits",   supplyId: "tarps",      quantity: 3,  unitCostPhp: 890   },
-      { id: "n4", label: "Hygiene Kits",             supplyId: "hygiene",    quantity: 5,  unitCostPhp: 350   },
+      { id: "n1", label: "CGI Roofing Sheets",     supplyId: "roofing",    quantity: 20, unitCostPhp: 480 },
+      { id: "n2", label: "Rice (50kg sack)",        supplyId: "rice",       quantity: 4,  unitCostPhp: 2_650 },
+      { id: "n3", label: "Tarpaulin Shelter Kits", supplyId: "tarps",      quantity: 3,  unitCostPhp: 890 },
+      { id: "n4", label: "Hygiene Kits",           supplyId: "hygiene",    quantity: 5,  unitCostPhp: 350 },
+    ],
+  },
+  {
+    id: "FAM-1078", alias: "Family #FAM-1078", barangay: "Barangay Riverside",
+    householdSize: 4, urgency: "moderate", registeredOn: "2026-07-16",
+    deliveryStatus: "delivered", amountFundedPhp: 3_850,
+    needs: [
+      { id: "n1", label: "Emergency Food Packs",  supplyId: "food-packs", quantity: 2, unitCostPhp: 750 },
+      { id: "n2", label: "Potable Water (5-gal)", supplyId: "water",      quantity: 5, unitCostPhp: 120 },
+    ],
+  },
+  {
+    id: "FAM-1145", alias: "Family #FAM-1145", barangay: "Barangay Sto. Niño",
+    householdSize: 6, urgency: "high", registeredOn: "2026-07-20",
+    deliveryStatus: "pending", amountFundedPhp: 800,
+    needs: [
+      { id: "n1", label: "Solar Lanterns",         supplyId: "solar",      quantity: 3, unitCostPhp: 640 },
+      { id: "n2", label: "Hygiene Kits",           supplyId: "hygiene",    quantity: 4, unitCostPhp: 350 },
+      { id: "n3", label: "Emergency Food Packs",   supplyId: "food-packs", quantity: 5, unitCostPhp: 750 },
     ],
   },
   {
@@ -124,10 +215,19 @@ export const families: Family[] = [
     householdSize: 5, urgency: "critical", registeredOn: "2026-07-20",
     deliveryStatus: "pending", amountFundedPhp: 0,
     needs: [
-      { id: "n1", label: "CGI Roofing Sheets",                   supplyId: "roofing",      quantity: 15, unitCostPhp: 480   },
-      { id: "n2", label: "Rice (50 kg sack)",                    supplyId: "rice",         quantity: 2,  unitCostPhp: 2_650 },
-      { id: "n3", label: "Tarpaulin Shelter Kits",               supplyId: "tarps",        quantity: 2,  unitCostPhp: 890   },
-      { id: "n4", label: "Water Purification Tablets (×50)",     supplyId: "purification", quantity: 8,  unitCostPhp: 95    },
+      { id: "n1", label: "CGI Roofing Sheets",               supplyId: "roofing",      quantity: 15, unitCostPhp: 480 },
+      { id: "n2", label: "Rice (50kg sack)",                 supplyId: "rice",         quantity: 2,  unitCostPhp: 2_650 },
+      { id: "n3", label: "Tarpaulin Shelter Kits",           supplyId: "tarps",        quantity: 2,  unitCostPhp: 890 },
+      { id: "n4", label: "Water Purification Tablets (x50)", supplyId: "purification", quantity: 8,  unitCostPhp: 95 },
+    ],
+  },
+  {
+    id: "FAM-1288", alias: "Family #FAM-1288", barangay: "Barangay Pook",
+    householdSize: 3, urgency: "moderate", registeredOn: "2026-07-17",
+    deliveryStatus: "in_transit", amountFundedPhp: 1_500,
+    needs: [
+      { id: "n1", label: "Rice (50kg sack)",   supplyId: "rice",       quantity: 1, unitCostPhp: 2_650 },
+      { id: "n2", label: "Hygiene Kits",       supplyId: "hygiene",    quantity: 2, unitCostPhp: 350 },
     ],
   },
   {
@@ -135,117 +235,29 @@ export const families: Family[] = [
     householdSize: 8, urgency: "critical", registeredOn: "2026-07-21",
     deliveryStatus: "pending", amountFundedPhp: 0,
     needs: [
-      { id: "n1", label: "CGI Roofing Sheets",      supplyId: "roofing",    quantity: 22, unitCostPhp: 480   },
-      { id: "n2", label: "Emergency Food Packs",    supplyId: "food-packs", quantity: 8,  unitCostPhp: 750   },
-      { id: "n3", label: "Tarpaulin Shelter Kits",  supplyId: "tarps",      quantity: 4,  unitCostPhp: 890   },
-      { id: "n4", label: "Rice (50 kg sack)",        supplyId: "rice",       quantity: 3,  unitCostPhp: 2_650 },
-    ],
-  },
-  {
-    id: "FAM-1644", alias: "Family #FAM-1644", barangay: "Barangay Riverside",
-    householdSize: 7, urgency: "critical", registeredOn: "2026-07-22",
-    deliveryStatus: "pending", amountFundedPhp: 0,
-    needs: [
-      { id: "n1", label: "Rice (50 kg sack)",                    supplyId: "rice",         quantity: 4,  unitCostPhp: 2_650 },
-      { id: "n2", label: "CGI Roofing Sheets",                   supplyId: "roofing",      quantity: 16, unitCostPhp: 480   },
-      { id: "n3", label: "Emergency Food Packs",                 supplyId: "food-packs",   quantity: 7,  unitCostPhp: 750   },
-      { id: "n4", label: "Tarpaulin Shelter Kits",               supplyId: "tarps",        quantity: 3,  unitCostPhp: 890   },
-      { id: "n5", label: "Water Purification Tablets (×50)",     supplyId: "purification", quantity: 12, unitCostPhp: 95    },
-    ],
-  },
-  {
-    id: "FAM-1898", alias: "Family #FAM-1898", barangay: "Barangay Pook",
-    householdSize: 4, urgency: "critical", registeredOn: "2026-07-23",
-    deliveryStatus: "in_transit", amountFundedPhp: 9_550, // ~50% of 19,100
-    needs: [
-      { id: "n1", label: "CGI Roofing Sheets",      supplyId: "roofing",    quantity: 14, unitCostPhp: 480   },
-      { id: "n2", label: "Rice (50 kg sack)",        supplyId: "rice",       quantity: 2,  unitCostPhp: 2_650 },
-      { id: "n3", label: "Tarpaulin Shelter Kits",   supplyId: "tarps",      quantity: 2,  unitCostPhp: 890   },
-      { id: "n4", label: "Emergency Food Packs",    supplyId: "food-packs", quantity: 5,  unitCostPhp: 750   },
-    ],
-  },
-  {
-    id: "FAM-2055", alias: "Family #FAM-2055", barangay: "Barangay Bagong Sikat",
-    householdSize: 8, urgency: "critical", registeredOn: "2026-07-24",
-    deliveryStatus: "in_transit", amountFundedPhp: 14_950, // ~50% of 29,900
-    needs: [
-      { id: "n1", label: "Rice (50 kg sack)",                    supplyId: "rice",         quantity: 4,  unitCostPhp: 2_650 },
-      { id: "n2", label: "CGI Roofing Sheets",                   supplyId: "roofing",      quantity: 20, unitCostPhp: 480   },
-      { id: "n3", label: "Tarpaulin Shelter Kits",               supplyId: "tarps",        quantity: 4,  unitCostPhp: 890   },
-      { id: "n4", label: "Emergency Food Packs",                 supplyId: "food-packs",   quantity: 8,  unitCostPhp: 750   },
-      { id: "n5", label: "Water Purification Tablets (×50)",     supplyId: "purification", quantity: 15, unitCostPhp: 95    },
-    ],
-  },
-
-  // ── HIGH ─────────────────────────────────────────────────────────────────
-  {
-    id: "FAM-0389", alias: "Family #FAM-0389", barangay: "Barangay Tubod",
-    householdSize: 3, urgency: "high", registeredOn: "2026-07-15",
-    deliveryStatus: "pending", amountFundedPhp: 0,
-    needs: [
-      { id: "n1", label: "Rice (50 kg sack)",   supplyId: "rice",    quantity: 2, unitCostPhp: 2_650 },
-      { id: "n2", label: "Hygiene Kits",         supplyId: "hygiene", quantity: 3, unitCostPhp: 350   },
-      { id: "n3", label: "Solar Lanterns",       supplyId: "solar",   quantity: 1, unitCostPhp: 640   },
-    ],
-  },
-  {
-    id: "FAM-0466", alias: "Family #FAM-0466", barangay: "Barangay Bagong Sikat",
-    householdSize: 6, urgency: "high", registeredOn: "2026-07-16",
-    deliveryStatus: "pending", amountFundedPhp: 0,
-    needs: [
-      { id: "n1", label: "CGI Roofing Sheets",   supplyId: "roofing",    quantity: 14, unitCostPhp: 480 },
-      { id: "n2", label: "Hygiene Kits",          supplyId: "hygiene",    quantity: 2,  unitCostPhp: 350 },
-      { id: "n3", label: "Emergency Food Packs", supplyId: "food-packs", quantity: 4,  unitCostPhp: 750 },
-    ],
-  },
-  {
-    id: "FAM-0155", alias: "Family #FAM-0155", barangay: "Barangay Riverside",
-    householdSize: 5, urgency: "high", registeredOn: "2026-07-15",
-    deliveryStatus: "in_transit", amountFundedPhp: 3_350, // ~45% of 7,430
-    needs: [
-      { id: "n1", label: "CGI Roofing Sheets",   supplyId: "roofing",    quantity: 8, unitCostPhp: 480 },
-      { id: "n2", label: "Emergency Food Packs", supplyId: "food-packs", quantity: 2, unitCostPhp: 750 },
-      { id: "n3", label: "Hygiene Kits",          supplyId: "hygiene",    quantity: 3, unitCostPhp: 350 },
-    ],
-  },
-  {
-    id: "FAM-0711", alias: "Family #FAM-0711", barangay: "Barangay Pook",
-    householdSize: 4, urgency: "high", registeredOn: "2026-07-18",
-    deliveryStatus: "pending", amountFundedPhp: 0,
-    needs: [
-      { id: "n1", label: "Hygiene Kits",          supplyId: "hygiene",    quantity: 4, unitCostPhp: 350 },
-      { id: "n2", label: "Emergency Food Packs", supplyId: "food-packs", quantity: 3, unitCostPhp: 750 },
-      { id: "n3", label: "Solar Lanterns",        supplyId: "solar",      quantity: 2, unitCostPhp: 640 },
-    ],
-  },
-  {
-    id: "FAM-0915", alias: "Family #FAM-0915", barangay: "Barangay Look",
-    householdSize: 5, urgency: "high", registeredOn: "2026-07-19",
-    deliveryStatus: "pending", amountFundedPhp: 0,
-    needs: [
-      { id: "n1", label: "Potable Water (5-gal)", supplyId: "water",      quantity: 10, unitCostPhp: 120 },
-      { id: "n2", label: "Emergency Food Packs",  supplyId: "food-packs", quantity: 4,  unitCostPhp: 750 },
-      { id: "n3", label: "Solar Lanterns",        supplyId: "solar",      quantity: 2,  unitCostPhp: 640 },
-    ],
-  },
-  {
-    id: "FAM-1145", alias: "Family #FAM-1145", barangay: "Barangay Sto. Niño",
-    householdSize: 6, urgency: "high", registeredOn: "2026-07-20",
-    deliveryStatus: "pending", amountFundedPhp: 0,
-    needs: [
-      { id: "n1", label: "Solar Lanterns",        supplyId: "solar",      quantity: 3, unitCostPhp: 640 },
-      { id: "n2", label: "Hygiene Kits",          supplyId: "hygiene",    quantity: 4, unitCostPhp: 350 },
-      { id: "n3", label: "Emergency Food Packs",  supplyId: "food-packs", quantity: 5, unitCostPhp: 750 },
+      { id: "n1", label: "CGI Roofing Sheets",   supplyId: "roofing",    quantity: 22, unitCostPhp: 480 },
+      { id: "n2", label: "Emergency Food Packs", supplyId: "food-packs", quantity: 8,  unitCostPhp: 750 },
+      { id: "n3", label: "Tarpaulin Shelter Kits", supplyId: "tarps",    quantity: 4,  unitCostPhp: 890 },
+      { id: "n4", label: "Rice (50kg sack)",     supplyId: "rice",       quantity: 3,  unitCostPhp: 2_650 },
     ],
   },
   {
     id: "FAM-1420", alias: "Family #FAM-1420", barangay: "Barangay Bagong Sikat",
     householdSize: 4, urgency: "high", registeredOn: "2026-07-21",
-    deliveryStatus: "pending", amountFundedPhp: 0,
+    deliveryStatus: "pending", amountFundedPhp: 600,
     needs: [
-      { id: "n1", label: "Potable Water (5-gal)", supplyId: "water",      quantity: 8, unitCostPhp: 120 },
-      { id: "n2", label: "Hygiene Kits",          supplyId: "hygiene",    quantity: 3, unitCostPhp: 350 },
-      { id: "n3", label: "Solar Lanterns",        supplyId: "solar",      quantity: 2, unitCostPhp: 640 },
+      { id: "n1", label: "Potable Water (5-gal)",  supplyId: "water",      quantity: 8,  unitCostPhp: 120 },
+      { id: "n2", label: "Hygiene Kits",           supplyId: "hygiene",    quantity: 3,  unitCostPhp: 350 },
+      { id: "n3", label: "Solar Lanterns",         supplyId: "solar",      quantity: 2,  unitCostPhp: 640 },
+    ],
+  },
+  {
+    id: "FAM-1503", alias: "Family #FAM-1503", barangay: "Barangay Look",
+    householdSize: 5, urgency: "moderate", registeredOn: "2026-07-18",
+    deliveryStatus: "delivered", amountFundedPhp: 2_750,
+    needs: [
+      { id: "n1", label: "Emergency Food Packs",  supplyId: "food-packs", quantity: 3, unitCostPhp: 750 },
+      { id: "n2", label: "Potable Water (5-gal)", supplyId: "water",      quantity: 4, unitCostPhp: 120 },
     ],
   },
   {
@@ -253,9 +265,30 @@ export const families: Family[] = [
     householdSize: 6, urgency: "high", registeredOn: "2026-07-22",
     deliveryStatus: "pending", amountFundedPhp: 0,
     needs: [
-      { id: "n1", label: "CGI Roofing Sheets",    supplyId: "roofing",    quantity: 10, unitCostPhp: 480 },
-      { id: "n2", label: "Tarpaulin Shelter Kits", supplyId: "tarps",     quantity: 2,  unitCostPhp: 890 },
-      { id: "n3", label: "Emergency Food Packs",  supplyId: "food-packs", quantity: 5,  unitCostPhp: 750 },
+      { id: "n1", label: "CGI Roofing Sheets",     supplyId: "roofing",    quantity: 10, unitCostPhp: 480 },
+      { id: "n2", label: "Tarpaulin Shelter Kits", supplyId: "tarps",      quantity: 2,  unitCostPhp: 890 },
+      { id: "n3", label: "Emergency Food Packs",   supplyId: "food-packs", quantity: 5,  unitCostPhp: 750 },
+    ],
+  },
+  {
+    id: "FAM-1644", alias: "Family #FAM-1644", barangay: "Barangay Riverside",
+    householdSize: 7, urgency: "critical", registeredOn: "2026-07-22",
+    deliveryStatus: "pending", amountFundedPhp: 0,
+    needs: [
+      { id: "n1", label: "Rice (50kg sack)",                 supplyId: "rice",         quantity: 4,  unitCostPhp: 2_650 },
+      { id: "n2", label: "CGI Roofing Sheets",               supplyId: "roofing",      quantity: 16, unitCostPhp: 480 },
+      { id: "n3", label: "Emergency Food Packs",             supplyId: "food-packs",   quantity: 7,  unitCostPhp: 750 },
+      { id: "n4", label: "Tarpaulin Shelter Kits",           supplyId: "tarps",        quantity: 3,  unitCostPhp: 890 },
+      { id: "n5", label: "Water Purification Tablets (x50)", supplyId: "purification", quantity: 12, unitCostPhp: 95  },
+    ],
+  },
+  {
+    id: "FAM-1722", alias: "Family #FAM-1722", barangay: "Barangay Sto. Niño",
+    householdSize: 3, urgency: "moderate", registeredOn: "2026-07-19",
+    deliveryStatus: "in_transit", amountFundedPhp: 1_750,
+    needs: [
+      { id: "n1", label: "Hygiene Kits",         supplyId: "hygiene",    quantity: 2, unitCostPhp: 350 },
+      { id: "n2", label: "Solar Lanterns",       supplyId: "solar",      quantity: 1, unitCostPhp: 640 },
     ],
   },
   {
@@ -263,127 +296,88 @@ export const families: Family[] = [
     householdSize: 5, urgency: "high", registeredOn: "2026-07-23",
     deliveryStatus: "pending", amountFundedPhp: 0,
     needs: [
-      { id: "n1", label: "Potable Water (5-gal)", supplyId: "water",      quantity: 12, unitCostPhp: 120 },
-      { id: "n2", label: "Emergency Food Packs",  supplyId: "food-packs", quantity: 4,  unitCostPhp: 750 },
-      { id: "n3", label: "Hygiene Kits",          supplyId: "hygiene",    quantity: 3,  unitCostPhp: 350 },
+      { id: "n1", label: "Potable Water (5-gal)",  supplyId: "water",      quantity: 12, unitCostPhp: 120 },
+      { id: "n2", label: "Emergency Food Packs",   supplyId: "food-packs", quantity: 4,  unitCostPhp: 750 },
+      { id: "n3", label: "Hygiene Kits",           supplyId: "hygiene",    quantity: 3,  unitCostPhp: 350 },
+    ],
+  },
+  {
+    id: "FAM-1898", alias: "Family #FAM-1898", barangay: "Barangay Pook",
+    householdSize: 4, urgency: "critical", registeredOn: "2026-07-23",
+    deliveryStatus: "pending", amountFundedPhp: 0,
+    needs: [
+      { id: "n1", label: "CGI Roofing Sheets",     supplyId: "roofing",    quantity: 14, unitCostPhp: 480 },
+      { id: "n2", label: "Rice (50kg sack)",        supplyId: "rice",       quantity: 2,  unitCostPhp: 2_650 },
+      { id: "n3", label: "Tarpaulin Shelter Kits", supplyId: "tarps",      quantity: 2,  unitCostPhp: 890 },
+      { id: "n4", label: "Emergency Food Packs",   supplyId: "food-packs", quantity: 5,  unitCostPhp: 750 },
     ],
   },
   {
     id: "FAM-1977", alias: "Family #FAM-1977", barangay: "Barangay Sta. Cruz",
     householdSize: 6, urgency: "high", registeredOn: "2026-07-24",
-    deliveryStatus: "in_transit", amountFundedPhp: 3_550, // ~55% of 6,460
+    deliveryStatus: "pending", amountFundedPhp: 900,
     needs: [
-      { id: "n1", label: "Solar Lanterns",        supplyId: "solar",      quantity: 3, unitCostPhp: 640 },
-      { id: "n2", label: "Potable Water (5-gal)", supplyId: "water",      quantity: 9, unitCostPhp: 120 },
-      { id: "n3", label: "Emergency Food Packs",  supplyId: "food-packs", quantity: 5, unitCostPhp: 750 },
-    ],
-  },
-
-  // ── MODERATE ─────────────────────────────────────────────────────────────
-  {
-    id: "FAM-0287", alias: "Family #FAM-0287", barangay: "Barangay Sto. Niño",
-    householdSize: 4, urgency: "moderate", registeredOn: "2026-07-14",
-    deliveryStatus: "delivered", amountFundedPhp: 3_010, // full cost
-    needs: [
-      { id: "n1", label: "Rice (50 kg sack)",     supplyId: "rice",  quantity: 1, unitCostPhp: 2_650 },
-      { id: "n2", label: "Potable Water (5-gal)", supplyId: "water", quantity: 3, unitCostPhp: 120   },
+      { id: "n1", label: "Solar Lanterns",         supplyId: "solar",      quantity: 3, unitCostPhp: 640 },
+      { id: "n2", label: "Potable Water (5-gal)",  supplyId: "water",      quantity: 9, unitCostPhp: 120 },
+      { id: "n3", label: "Emergency Food Packs",   supplyId: "food-packs", quantity: 5, unitCostPhp: 750 },
     ],
   },
   {
-    id: "FAM-0341", alias: "Family #FAM-0341", barangay: "Barangay Look",
-    householdSize: 2, urgency: "moderate", registeredOn: "2026-07-13",
-    deliveryStatus: "delivered", amountFundedPhp: 1_390, // full cost
+    id: "FAM-2055", alias: "Family #FAM-2055", barangay: "Barangay Bagong Sikat",
+    householdSize: 8, urgency: "critical", registeredOn: "2026-07-24",
+    deliveryStatus: "pending", amountFundedPhp: 0,
     needs: [
-      { id: "n1", label: "Emergency Food Packs", supplyId: "food-packs", quantity: 1, unitCostPhp: 750 },
-      { id: "n2", label: "Solar Lanterns",        supplyId: "solar",      quantity: 1, unitCostPhp: 640 },
-    ],
-  },
-  {
-    id: "FAM-0802", alias: "Family #FAM-0802", barangay: "Barangay Sta. Cruz",
-    householdSize: 3, urgency: "moderate", registeredOn: "2026-07-14",
-    deliveryStatus: "delivered", amountFundedPhp: 3_050, // full cost (2650+2*200 = no, rice+2hygiene = 2650+700 = 3350, use actual)
-    needs: [
-      { id: "n1", label: "Rice (50 kg sack)", supplyId: "rice",    quantity: 1, unitCostPhp: 2_650 },
-      { id: "n2", label: "Hygiene Kits",       supplyId: "hygiene", quantity: 2, unitCostPhp: 350   },
-    ],
-  },
-  {
-    id: "FAM-1078", alias: "Family #FAM-1078", barangay: "Barangay Riverside",
-    householdSize: 4, urgency: "moderate", registeredOn: "2026-07-16",
-    deliveryStatus: "delivered", amountFundedPhp: 2_100, // full cost (2*750+5*120 = 1500+600 = 2100)
-    needs: [
-      { id: "n1", label: "Emergency Food Packs",  supplyId: "food-packs", quantity: 2, unitCostPhp: 750 },
-      { id: "n2", label: "Potable Water (5-gal)", supplyId: "water",      quantity: 5, unitCostPhp: 120 },
-    ],
-  },
-  {
-    id: "FAM-1288", alias: "Family #FAM-1288", barangay: "Barangay Pook",
-    householdSize: 3, urgency: "moderate", registeredOn: "2026-07-17",
-    deliveryStatus: "in_transit", amountFundedPhp: 1_700, // ~55% of 3,350
-    needs: [
-      { id: "n1", label: "Rice (50 kg sack)", supplyId: "rice",    quantity: 1, unitCostPhp: 2_650 },
-      { id: "n2", label: "Hygiene Kits",       supplyId: "hygiene", quantity: 2, unitCostPhp: 350   },
-    ],
-  },
-  {
-    id: "FAM-1503", alias: "Family #FAM-1503", barangay: "Barangay Look",
-    householdSize: 5, urgency: "moderate", registeredOn: "2026-07-18",
-    deliveryStatus: "delivered", amountFundedPhp: 2_730, // full cost (3*750+4*120 = 2250+480 = 2730)
-    needs: [
-      { id: "n1", label: "Emergency Food Packs",  supplyId: "food-packs", quantity: 3, unitCostPhp: 750 },
-      { id: "n2", label: "Potable Water (5-gal)", supplyId: "water",      quantity: 4, unitCostPhp: 120 },
-    ],
-  },
-  {
-    id: "FAM-1722", alias: "Family #FAM-1722", barangay: "Barangay Sto. Niño",
-    householdSize: 3, urgency: "moderate", registeredOn: "2026-07-19",
-    deliveryStatus: "in_transit", amountFundedPhp: 750, // ~45% of 1,640
-    needs: [
-      { id: "n1", label: "Hygiene Kits",   supplyId: "hygiene", quantity: 2, unitCostPhp: 350 },
-      { id: "n2", label: "Solar Lanterns", supplyId: "solar",   quantity: 1, unitCostPhp: 640 },
+      { id: "n1", label: "Rice (50kg sack)",                 supplyId: "rice",         quantity: 4,  unitCostPhp: 2_650 },
+      { id: "n2", label: "CGI Roofing Sheets",               supplyId: "roofing",      quantity: 20, unitCostPhp: 480 },
+      { id: "n3", label: "Tarpaulin Shelter Kits",           supplyId: "tarps",        quantity: 4,  unitCostPhp: 890 },
+      { id: "n4", label: "Emergency Food Packs",             supplyId: "food-packs",   quantity: 8,  unitCostPhp: 750 },
+      { id: "n5", label: "Water Purification Tablets (x50)", supplyId: "purification", quantity: 15, unitCostPhp: 95  },
     ],
   },
   {
     id: "FAM-2133", alias: "Family #FAM-2133", barangay: "Barangay Look",
     householdSize: 4, urgency: "moderate", registeredOn: "2026-07-20",
-    deliveryStatus: "delivered", amountFundedPhp: 2_550, // full cost (3*350+2*750 = 1050+1500 = 2550)
+    deliveryStatus: "delivered", amountFundedPhp: 4_500,
     needs: [
-      { id: "n1", label: "Hygiene Kits",          supplyId: "hygiene",    quantity: 3, unitCostPhp: 350 },
-      { id: "n2", label: "Emergency Food Packs",  supplyId: "food-packs", quantity: 2, unitCostPhp: 750 },
+      { id: "n1", label: "Hygiene Kits",         supplyId: "hygiene",    quantity: 3, unitCostPhp: 350 },
+      { id: "n2", label: "Emergency Food Packs", supplyId: "food-packs", quantity: 2, unitCostPhp: 750 },
     ],
   },
 ];
 
 // ---------------------------------------------------------------------------
-// Derive supplyCategories from family registry.
-// quantityNeeded  = sum of all family needs for that supply id
-// quantityFunded  = sum of units proportionally funded via amountFundedPhp
+// Derive supplyCategories from family registry
+// quantityNeeded = sum of all family needs for that supply
+// quantityFunded = proportional share from amountFundedPhp (treated as partially funded)
 // ---------------------------------------------------------------------------
 function buildSupplyCategories(): SupplyCategory[] {
   return SUPPLY_CATALOGUE.map((cat) => {
+    // Aggregate totals across all families for this supply id
     let totalNeeded = 0;
     let totalFunded = 0;
 
     for (const fam of families) {
-      const famTotalCost = fam.needs.reduce((s, n) => s + n.quantity * n.unitCostPhp, 0);
       for (const need of fam.needs) {
-        if (need.supplyId !== cat.id) continue;
-        totalNeeded += need.quantity;
-        if (famTotalCost > 0 && fam.amountFundedPhp > 0) {
-          const ratio = Math.min(1, fam.amountFundedPhp / famTotalCost);
-          totalFunded += need.quantity * ratio;
+        if (need.supplyId === cat.id) {
+          totalNeeded += need.quantity;
+          // credit funded proportionally: amountFundedPhp / totalFamilyCost * this need's cost
+          const famTotalCost = fam.needs.reduce((s, n) => s + n.quantity * n.unitCostPhp, 0);
+          if (famTotalCost > 0 && fam.amountFundedPhp > 0) {
+            const ratio = Math.min(1, fam.amountFundedPhp / famTotalCost);
+            totalFunded += need.quantity * ratio;
+          }
         }
       }
     }
 
     return {
-      id:              cat.id,
-      name:            cat.name,
-      unit:            cat.unit as SupplyCategory["unit"],
-      icon:            cat.icon,
-      unitCostPhp:     cat.unitCostPhp,
-      quantityNeeded:  Math.max(1, Math.round(totalNeeded)),
-      quantityFunded:  Math.round(totalFunded),
+      id: cat.id,
+      name: cat.name,
+      unit: cat.unit as SupplyCategory["unit"],
+      icon: cat.icon,
+      unitCostPhp: cat.unitCostPhp,
+      quantityNeeded: Math.max(1, Math.round(totalNeeded)),
+      quantityFunded: Math.round(totalFunded),
     };
   });
 }
@@ -405,7 +399,7 @@ export const ledgerEntries: LedgerEntry[] = [
     id: "lg-2", type: "outflow",
     txHash: "7d2b9f4a1c6e8305d7b1f9a4c2e6d8b0f3a7c1e9d5b2f8a0c4e7d1b9f6a3c250",
     vendor: "Malinaw Rice Traders Coop",
-    purpose: "620 sacks of rice for Barangay Look & Tubod distribution",
+    purpose: "620 sacks of rice (50kg) for Barangay Look & Tubod distribution",
     phpAmount: 1_643_000,
     receiptImageNote: "Official receipt #OR-22841, signed by MDRRMO",
     deliveryPhotoNote: "Delivery photos: warehouse hand-off, 3 images",
@@ -448,7 +442,7 @@ export const ledgerEntries: LedgerEntry[] = [
     id: "lg-7", type: "outflow",
     txHash: "2a6d9c4f1b8e357a0d3b6f9c2e5a8d1b4f7c0e3a6d9b2f5c8e1a4d7b0f3c6935",
     vendor: "Bayanihan Water Refilling Station",
-    purpose: "Potable water & purification tablets for 3 barangays",
+    purpose: "9,600 units of 5-gallon potable water + purification tablets",
     phpAmount: 1_152_000,
     receiptImageNote: "Official receipt #OR-22849, signed by MDRRMO",
     deliveryPhotoNote: "Delivery photos: tanker unloading, 4 images",
@@ -493,31 +487,17 @@ export function getTotalFundedPhp(): number {
   return supplyCategories.reduce((s, c) => s + c.unitCostPhp * c.quantityFunded, 0);
 }
 
-export function getFamilyTotalCostPhp(family: Family): number {
-  return family.needs.reduce((s, n) => s + n.quantity * n.unitCostPhp, 0);
-}
-
-/**
- * Total unfunded cost across all families, optionally adjusted for
- * session donations (extraFundedByFamily from DonationContext).
- */
+/** Total cost of all unfunded family needs (the "true" shortfall to donors). */
 export function getFamilyRegistryShortfallPhp(
   extraFundedByFamily: Record<string, number> = {},
-  supplyDirectFunded: Record<string, number> = {},
 ): number {
-  // Family-level shortfall
-  const familyShortfall = families.reduce((sum, fam) => {
-    const totalCost  = getFamilyTotalCostPhp(fam);
-    const funded     = Math.min(totalCost, fam.amountFundedPhp + (extraFundedByFamily[fam.id] ?? 0));
+  return families.reduce((sum, fam) => {
+    const totalCost = getFamilyTotalCostPhp(fam);
+    const baseFunded = fam.amountFundedPhp;
+    const extraFunded = extraFundedByFamily[fam.id] ?? 0;
+    const funded = Math.min(totalCost, baseFunded + extraFunded);
     return sum + Math.max(0, totalCost - funded);
   }, 0);
-
-  // Deduct direct supply donations from the shortfall
-  const directCredit = SUPPLY_CATALOGUE.reduce((s, cat) => {
-    return s + (supplyDirectFunded[cat.id] ?? 0);
-  }, 0);
-
-  return Math.max(0, familyShortfall - directCredit);
 }
 
 export function getShortfallPhp(): number {
@@ -525,4 +505,8 @@ export function getShortfallPhp(): number {
     0,
     getTotalNeededPhp() - getTotalFundedPhp() - calamitySummary.lguFundAllocatedPhp,
   );
+}
+
+export function getFamilyTotalCostPhp(family: Family): number {
+  return family.needs.reduce((s, n) => s + n.quantity * n.unitCostPhp, 0);
 }
