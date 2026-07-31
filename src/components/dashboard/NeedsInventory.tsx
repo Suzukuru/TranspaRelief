@@ -12,10 +12,11 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { supplyCategories, assetRates } from "../../data/mockData";
+import { assetRates } from "../../data/mockData";
 import { formatAsset, formatNumber, formatPhp, phpToAsset } from "../../lib/format";
 import { ProgressBar } from "../ui/ProgressBar";
 import { LedgerPanel } from "./LedgerPanel";
+import { useDonation } from "../../context/DonationContext";
 
 const ICONS: Record<string, LucideIcon> = {
   Wheat,
@@ -32,6 +33,10 @@ type DisplayAsset = "PHP" | "XLM" | "USDC" | "PHPC";
 
 export function NeedsInventory() {
   const [displayAsset, setDisplayAsset] = useState<DisplayAsset>("PHP");
+  const { liveSupplyCategories } = useDonation();
+
+  // liveSupplyCategories already has session donations baked in via context
+  const liveCategories = liveSupplyCategories;
 
   function renderCost(php: number) {
     if (displayAsset === "PHP") return formatPhp(php);
@@ -89,7 +94,7 @@ export function NeedsInventory() {
                   </tr>
                 </thead>
                 <tbody>
-                  {supplyCategories.map((c, i) => {
+                  {liveCategories.map((c, i) => {
                     const Icon = ICONS[c.icon] ?? Package;
                     const pct = (c.quantityFunded / c.quantityNeeded) * 100;
                     const remainingQty = c.quantityNeeded - c.quantityFunded;

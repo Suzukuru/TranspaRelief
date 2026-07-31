@@ -25,6 +25,8 @@ export type UrgencyLevel = "critical" | "high" | "moderate";
 export interface FamilyNeedItem {
   id: string;
   label: string;
+  /** Links this need to a SupplyCategory id for inventory aggregation. */
+  supplyId: string;
   quantity: number;
   unitCostPhp: number;
 }

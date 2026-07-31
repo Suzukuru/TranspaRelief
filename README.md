@@ -9,12 +9,12 @@ A transparent, Stellar-backed disaster relief dashboard for Local Government Uni
 ## Features
 
 ### Dashboard
-- Hero summary of active calamities, LGU fund vs. shortfall (hover for breakdown)
-- Needs inventory table with PHP / XLM / USDC / PHPC toggle
+- Hero summary of active calamities; **TO CONTRIBUTE** reflects total unfunded family needs and updates live after every donation
+- Needs inventory table with PHP / XLM / USDC / PHPC toggle; funded quantities update per donation type
 
 ### Family Registry (`/families`)
-- Searchable, filterable family cards with itemized needs
-- "Fund this family" deep-link into the Donate page
+- Searchable, filterable family cards with itemized needs and live funded progress
+- "Fund this family" deep-link into the Donate page; funding fulfills the family's listed supply needs and propagates to the Master Needs Inventory
 
 ### Public Ledger (`/ledger`)
 - Live Horizon feed of donor inflows and vendor outflows
@@ -26,8 +26,9 @@ A transparent, Stellar-backed disaster relief dashboard for Local Government Uni
 - USDC/PHPC shown for PHP-conversion context (requires trustline for live transfers)
 
 ### Admin Portal (`/admin`)
-- Family registration, budget input, and multi-signer vendor payout forms
-- Local state only — no auth for this demo
+- Family registration with a **Randomize** button — generates urgency-scaled needs (Critical: 4–5 items, High: 2–4, Moderate: 1–3) from the supply catalogue
+- Registering a family immediately updates the Family Registry and Master Needs Inventory
+- Budget input and multi-signer vendor payout forms (local state only — no auth for this demo)
 
 ### Soroban Smart Contract (`contract/`)
 The `calamity-donation` contract records on-chain donation proofs without moving tokens itself, keeping SAC auth complexity out of the critical path.
@@ -111,7 +112,7 @@ Secrets required: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`.
 
 ## Architecture Notes
 
-- `src/lib/stellar.ts` — wraps `Horizon.Server` for balance/payment reads and Freighter for `requestAccess` / `signTransaction`. Builds a native XLM `TransactionBuilder` payment, signs via Freighter, and submits to Horizon. Falls back to mock data on any Horizon error.
-- All family, ledger, and fund figures in the demo are sample data in `src/data/mockData.ts` — no backend or database.
+- `src/context/DonationContext.tsx` — single source of truth for the reactive family list, live supply categories, and all donation state. General donations distribute to families by urgency (critical → high → moderate); family-specific donations credit that family's listed needs proportionally; all state persists to `localStorage` with a version key to purge stale data on mockData changes.
+- All family, ledger, and fund figures in the demo are seed data in `src/data/mockData.ts` — no backend or database. New families registered via Admin are persisted in `localStorage`.
 - Ledger transaction hashes in the demo are illustrative; Stellar Expert links won't resolve to real transactions until a live LGU wallet is wired in.
 - No auth on `/admin` — forms update local component state only.

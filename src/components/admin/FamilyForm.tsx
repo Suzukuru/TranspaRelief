@@ -1,10 +1,14 @@
 import { useState, type FormEvent } from "react";
-import { Plus, Trash2, UserPlus } from "lucide-react";
+import { Plus, Shuffle, Trash2, UserPlus } from "lucide-react";
+import { SUPPLY_CATALOGUE } from "../../data/mockData";
 import { formatPhp } from "../../lib/format";
+import { useDonation } from "../../context/DonationContext";
+import type { Family } from "../../types";
 
 interface DraftNeed {
   id: string;
   label: string;
+  supplyId: string;
   quantity: number;
   unitCostPhp: number;
 }
@@ -15,7 +19,24 @@ const BARANGAYS = [
   "Barangay Riverside",
   "Barangay Sto. Niño",
   "Barangay Bagong Sikat",
+  "Barangay Mabini",
+  "Barangay Pook",
+  "Barangay Sta. Cruz",
 ];
+
+/** Quantity range per urgency level */
+const NEED_COUNT_RANGE: Record<string, [number, number]> = {
+  critical: [4, 5],
+  high:     [2, 4],
+  moderate: [1, 3],
+};
+
+/** Quantity per item range per urgency */
+const QTY_RANGE: Record<string, [number, number]> = {
+  critical: [3, 12],
+  high:     [2, 8],
+  moderate: [1, 4],
+};
 
 let draftIdCounter = 0;
 function nextDraftId() {
@@ -23,12 +44,33 @@ function nextDraftId() {
   return `draft-${draftIdCounter}`;
 }
 
+function randInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function generateRandomNeeds(urgency: string): DraftNeed[] {
+  const [minNeeds, maxNeeds] = NEED_COUNT_RANGE[urgency] ?? [1, 3];
+  const [minQty, maxQty]     = QTY_RANGE[urgency]       ?? [1, 4];
+  const count = randInt(minNeeds, maxNeeds);
+
+  // Pick `count` distinct supplies at random
+  const shuffled = [...SUPPLY_CATALOGUE].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count).map((cat) => ({
+    id:          nextDraftId(),
+    label:       cat.name,
+    supplyId:    cat.id,
+    quantity:    randInt(minQty, maxQty),
+    unitCostPhp: cat.unitCostPhp,
+  }));
+}
+
 export function FamilyForm() {
-  const [barangay, setBarangay] = useState(BARANGAYS[0]);
+  const { addFamily } = useDonation();
+  const [barangay,     setBarangay]     = useState(BARANGAYS[0]);
   const [householdSize, setHouseholdSize] = useState(4);
-  const [urgency, setUrgency] = useState<"critical" | "high" | "moderate">("moderate");
-  const [needs, setNeeds] = useState<DraftNeed[]>([
-    { id: nextDraftId(), label: "Emergency Food Packs", quantity: 2, unitCostPhp: 750 },
+  const [urgency,      setUrgency]      = useState<"critical" | "high" | "moderate">("moderate");
+  const [needs,        setNeeds]        = useState<DraftNeed[]>([
+    { id: nextDraftId(), label: "Emergency Food Packs", supplyId: "food-packs", quantity: 2, unitCostPhp: 750 },
   ]);
   const [confirmation, setConfirmation] = useState<string | null>(null);
 
@@ -41,7 +83,7 @@ export function FamilyForm() {
   function addNeed() {
     setNeeds((prev) => [
       ...prev,
-      { id: nextDraftId(), label: "", quantity: 1, unitCostPhp: 0 },
+      { id: nextDraftId(), label: "", supplyId: "", quantity: 1, unitCostPhp: 0 },
     ]);
   }
 
@@ -49,15 +91,42 @@ export function FamilyForm() {
     setNeeds((prev) => prev.filter((n) => n.id !== id));
   }
 
+  function handleRandomize() {
+    setHouseholdSize(randInt(2, 9));
+    setBarangay(BARANGAYS[randInt(0, BARANGAYS.length - 1)]);
+    setNeeds(generateRandomNeeds(urgency));
+    setConfirmation(null);
+  }
+
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const nextId = `FAM-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newFamily: Family = {
+      id: nextId,
+      alias: `Family #${nextId}`,
+      barangay,
+      householdSize,
+      urgency,
+      registeredOn: new Date().toISOString().slice(0, 10),
+      deliveryStatus: "pending",
+      amountFundedPhp: 0,
+      needs: needs
+        .filter((n) => n.supplyId && n.quantity > 0 && n.unitCostPhp > 0)
+        .map((n, i) => ({
+          id: `n${i + 1}`,
+          label: n.label,
+          supplyId: n.supplyId,
+          quantity: n.quantity,
+          unitCostPhp: n.unitCostPhp,
+        })),
+    };
+    addFamily(newFamily);
     setConfirmation(
-      `${nextId} registered in ${barangay} — ${needs.length} need${
-        needs.length !== 1 ? "s" : ""
-      } totaling ${formatPhp(total)} added to the master inventory.`,
+      `${nextId} registered in ${barangay} — ${newFamily.needs.length} need${
+        newFamily.needs.length !== 1 ? "s" : ""
+      } totalling ${formatPhp(total)} added to the master inventory.`,
     );
-    setNeeds([{ id: nextDraftId(), label: "", quantity: 1, unitCostPhp: 0 }]);
+    setNeeds([{ id: nextDraftId(), label: "", supplyId: "", quantity: 1, unitCostPhp: 0 }]);
     setHouseholdSize(4);
   }
 
@@ -82,9 +151,7 @@ export function FamilyForm() {
             className="mt-1.5 w-full rounded-lg border border-paper-300 bg-paper-50 px-3 py-2 text-sm focus:border-signal-500"
           >
             {BARANGAYS.map((b) => (
-              <option key={b} value={b}>
-                {b}
-              </option>
+              <option key={b} value={b}>{b}</option>
             ))}
           </select>
         </label>
@@ -112,6 +179,24 @@ export function FamilyForm() {
         </label>
       </div>
 
+      {/* Random family generator */}
+      <div className="flex items-center justify-between rounded-lg border border-signal-300/40 bg-signal-50/30 px-4 py-3">
+        <div>
+          <p className="text-xs font-semibold text-ink-950">Generate random family</p>
+          <p className="mt-0.5 text-[11px] text-khaki-600">
+            Fills in household size, barangay, and needs based on the selected urgency level.
+            Critical: 4–5 needs · High: 2–4 · Moderate: 1–3
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleRandomize}
+          className="ml-4 inline-flex shrink-0 items-center gap-1.5 rounded-full bg-signal-500 px-4 py-2 text-xs font-semibold text-ink-950 hover:bg-signal-400"
+        >
+          <Shuffle className="h-3.5 w-3.5" /> Randomize
+        </button>
+      </div>
+
       <div>
         <div className="mb-2 flex items-center justify-between">
           <span className="text-xs font-medium text-ink-950">Itemized needs</span>
@@ -125,15 +210,28 @@ export function FamilyForm() {
         </div>
         <div className="space-y-2">
           {needs.map((n) => (
-            <div key={n.id} className="flex flex-wrap items-center gap-2 rounded-lg border border-paper-300 bg-paper-50 p-2.5">
-              <input
-                type="text"
-                placeholder="Item, e.g. CGI Roofing Sheets"
-                value={n.label}
-                onChange={(e) => updateNeed(n.id, { label: e.target.value })}
-                className="min-w-[160px] flex-1 rounded-md border border-paper-300 bg-paper-50 px-2.5 py-1.5 text-xs focus:border-signal-500"
-                required
-              />
+            <div
+              key={n.id}
+              className="flex flex-wrap items-center gap-2 rounded-lg border border-paper-300 bg-paper-50 p-2.5"
+            >
+              {/* Supply picker — shows catalogue items + free-text fallback */}
+              <select
+                value={n.supplyId}
+                onChange={(e) => {
+                  const cat = SUPPLY_CATALOGUE.find((c) => c.id === e.target.value);
+                  updateNeed(n.id, {
+                    supplyId:    e.target.value,
+                    label:       cat?.name ?? n.label,
+                    unitCostPhp: cat?.unitCostPhp ?? n.unitCostPhp,
+                  });
+                }}
+                className="min-w-[180px] flex-1 rounded-md border border-paper-300 bg-paper-50 px-2.5 py-1.5 text-xs focus:border-signal-500"
+              >
+                <option value="">— select supply —</option>
+                {SUPPLY_CATALOGUE.map((cat) => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
               <input
                 type="number"
                 min={1}
@@ -142,14 +240,9 @@ export function FamilyForm() {
                 className="w-20 rounded-md border border-paper-300 bg-paper-50 px-2.5 py-1.5 text-xs focus:border-signal-500"
                 aria-label="Quantity"
               />
-              <input
-                type="number"
-                min={0}
-                value={n.unitCostPhp}
-                onChange={(e) => updateNeed(n.id, { unitCostPhp: Number(e.target.value) })}
-                className="w-24 rounded-md border border-paper-300 bg-paper-50 px-2.5 py-1.5 text-xs focus:border-signal-500"
-                aria-label="Unit cost in pesos"
-              />
+              <span className="font-mono-num text-xs text-khaki-600 w-24 text-right">
+                {n.unitCostPhp > 0 ? formatPhp(n.quantity * n.unitCostPhp) : "—"}
+              </span>
               <button
                 type="button"
                 onClick={() => removeNeed(n.id)}
@@ -167,9 +260,7 @@ export function FamilyForm() {
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-paper-200 pt-4">
         <span className="text-sm text-khaki-700">
           Estimated total:{" "}
-          <span className="font-mono-num font-semibold text-ink-950">
-            {formatPhp(total)}
-          </span>
+          <span className="font-mono-num font-semibold text-ink-950">{formatPhp(total)}</span>
         </span>
         <button
           type="submit"

@@ -1,13 +1,13 @@
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import { families } from "../data/mockData";
 import { FamilyCard } from "../components/families/FamilyCard";
+import { useDonation } from "../context/DonationContext";
 import type { UrgencyLevel } from "../types";
 
-const BARANGAYS = Array.from(new Set(families.map((f) => f.barangay))).sort();
-const URGENCIES: UrgencyLevel[] = ["critical", "high", "moderate"];
-
 export default function FamiliesPage() {
+  const { families } = useDonation();
+  const BARANGAYS = useMemo(() => Array.from(new Set(families.map((f) => f.barangay))).sort(), [families]);
+  const URGENCIES: UrgencyLevel[] = ["critical", "high", "moderate"];
   const [query, setQuery] = useState("");
   const [barangay, setBarangay] = useState<string>("all");
   const [urgency, setUrgency] = useState<string>("all");
