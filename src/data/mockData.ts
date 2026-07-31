@@ -360,7 +360,7 @@ export function getTotalFundedPhp(): number {
 export function getShortfallPhp(): number {
   return Math.max(
     0,
-    getTotalNeededPhp() - calamitySummary.lguFundAllocatedPhp,
+    getTotalNeededPhp() - getTotalFundedPhp() - calamitySummary.lguFundAllocatedPhp,
   );
 }
 

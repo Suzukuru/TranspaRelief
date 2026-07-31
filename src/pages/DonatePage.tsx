@@ -12,6 +12,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useWallet } from "../context/useWallet";
+import { useDonation } from "../context/DonationContext";
 import {
   families,
   assetRates,
@@ -52,6 +53,7 @@ export default function DonatePage() {
   );
 
   const { address, status, balances, connect } = useWallet();
+  const { addDonation } = useDonation();
 
   const [asset, setAsset] = useState<Asset>("XLM");
   const [phpAmount, setPhpAmount] = useState(() => {
@@ -114,6 +116,7 @@ export default function DonatePage() {
       setTxHash(result.hash);
       setSendState("done");
       setUsedContract(true);
+      addDonation(phpAmount);
       return;
     }
 
@@ -131,6 +134,7 @@ export default function DonatePage() {
     }
     setTxHash(result.hash);
     setSendState("done");
+    addDonation(phpAmount);
   }
 
   const heading = family

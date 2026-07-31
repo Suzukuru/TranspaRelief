@@ -3,6 +3,7 @@ import { AlertTriangle, ExternalLink, MapPin, Radio, Users, Zap } from "lucide-r
 import {
   calamitySummary,
   getShortfallPhp,
+  getTotalFundedPhp,
   getTotalNeededPhp,
   ledgerEntries,
   supplyCategories,
@@ -21,6 +22,7 @@ import {
 } from "../../lib/stellar";
 import { MouseTooltip } from "../ui/MouseTooltip";
 import { ProgressBar } from "../ui/ProgressBar";
+import { useDonation } from "../../context/DonationContext";
 
 const outflows = ledgerEntries.filter((e) => e.type === "outflow");
 
@@ -38,11 +40,17 @@ function remainingItems() {
 
 export function HeroStats() {
   const totalNeeded = getTotalNeededPhp();
-  const shortfall = getShortfallPhp();
-  const metSoFar = totalNeeded - shortfall;
+  const baseFunded = getTotalFundedPhp();           // supply-level funded amounts
+  const baseShortfall = getShortfallPhp();           // totalNeeded - baseFunded - lguAllocated
+  const { totalDonatedPhp } = useDonation();
+
+  // Session donations reduce the shortfall and increase what's met.
+  const shortfall = Math.max(0, baseShortfall - totalDonatedPhp);
+  // "Met so far" = what's already funded in supplies + LGU allocation + session donations
+  const metSoFar = baseFunded + calamitySummary.lguFundAllocatedPhp + totalDonatedPhp;
+  const fundedRatio = Math.min(1, metSoFar / totalNeeded);
   const lguAllocated = calamitySummary.lguFundAllocatedPhp;
   const lguDisbursed = calamitySummary.lguFundDisbursedPhp;
-  const fundedRatio = Math.min(1, metSoFar / totalNeeded);
   const items = remainingItems();
 
   const [balances, setBalances] = useState<WalletBalance[] | null | "loading">("loading");

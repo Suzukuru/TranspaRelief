@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import { Navbar } from "./components/layout/Navbar";
 import { Footer } from "./components/layout/Footer";
 import { WalletProvider } from "./context/WalletContext";
+import { DonationProvider } from "./context/DonationContext";
 import DashboardPage from "./pages/DashboardPage";
 import FamiliesPage from "./pages/FamiliesPage";
 import LedgerPage from "./pages/LedgerPage";
@@ -11,6 +12,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 
 export default function App() {
   return (
+    <DonationProvider>
     <WalletProvider>
       <div className="flex min-h-screen flex-col">
         <Navbar />
@@ -27,5 +29,6 @@ export default function App() {
         <Footer />
       </div>
     </WalletProvider>
+    </DonationProvider>
   );
 }
