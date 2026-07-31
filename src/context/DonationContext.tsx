@@ -9,9 +9,8 @@ import {
 import {
   families as SEED_FAMILIES,
   SUPPLY_CATALOGUE,
-  calamitySummary,
 } from "../data/mockData";
-import type { Family, FamilyNeedItem, SupplyCategory } from "../types";
+import type { Family, SupplyCategory } from "../types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // localStorage keys & version sentinel
