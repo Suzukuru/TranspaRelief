@@ -2,7 +2,7 @@
 
 A transparent, Stellar-backed disaster relief dashboard for Local Government Units (LGUs). It bridges macro-level calamity fund accounting with micro-level family needs, letting donors trace every peso from wallet to Stellar transaction to vendor receipt.
 
-**Stack:** Vite + React 19 + TypeScript + Tailwind CSS 4 · Stellar SDK + Freighter API · Soroban smart contract (Rust)
+**Stack:** Vite + React 19 + TypeScript + Tailwind CSS 4 · Stellar SDK + Freighter API · Soroban smart contract (Rust) 
 
 ---
 
